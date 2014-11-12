@@ -3,7 +3,7 @@ package se.fredrikcarlbom.netrunnerdbapp;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class IncomingCard {
     @JsonProperty("code")
     public int Code;

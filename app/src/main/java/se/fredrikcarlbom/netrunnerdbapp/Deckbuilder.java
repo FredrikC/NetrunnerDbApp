@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.ListView;
 
 import com.android.volley.Response;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,10 +27,20 @@ public class Deckbuilder extends Activity
 
     List<IncomingCard> incomingCards;
     Communication communication;
+    ObjectMapper mapper;
 
     public Deckbuilder() {
         super();
-        communication = new Communication(this.getApplicationContext(), "http://netrunnerdb.com/api/");
+        mapper = new ObjectMapper();
+    }
+
+    private void ViewCards() {
+        if (incomingCards == null) {
+            return;
+        }
+        ListView listView = (ListView)findViewById(R.id.listView);
+        CardAdapter adapter = new CardAdapter(this.getApplicationContext(), incomingCards);
+        listView.setAdapter(adapter);
     }
 
     /**
@@ -46,26 +57,24 @@ public class Deckbuilder extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deckbuilder);
+        communication = new Communication(this.getApplicationContext(), "http://netrunnerdb.com/api/");
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                ObjectMapper mapper = new ObjectMapper();
                 try {
                     incomingCards = mapper.readValue(response, new TypeReference<ArrayList<IncomingCard>>() {});
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //response
+                ViewCards();
             }
         };
 
