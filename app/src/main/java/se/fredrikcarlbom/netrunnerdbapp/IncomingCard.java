@@ -1,5 +1,7 @@
 package se.fredrikcarlbom.netrunnerdbapp;
 
+import android.graphics.Bitmap;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,4 +24,9 @@ public class IncomingCard {
      */
     @JsonProperty("type_code")
     public String TypeCode;
+
+    @JsonProperty("imagesrc")
+    public String ImageSrc;
+
+    public Bitmap Bitmap;
 }

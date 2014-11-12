@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,7 +58,7 @@ public class Deckbuilder extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deckbuilder);
-        communication = new Communication(this.getApplicationContext(), "http://netrunnerdb.com/api/");
+        communication = new Communication(this.getApplicationContext(), "http://netrunnerdb.com/", "api/");
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -69,12 +70,17 @@ public class Deckbuilder extends Activity
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                try {
-                    incomingCards = mapper.readValue(response, new TypeReference<ArrayList<IncomingCard>>() {});
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try {
+                incomingCards = mapper.readValue(response, new TypeReference<ArrayList<IncomingCard>>() {});
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            communication.FetchImage(new Consumer<Bitmap>() {
+                public void onResponse(Bitmap bitmap) {
+                    incomingCards.get(0).Bitmap = bitmap;
                 }
-                ViewCards();
+                }, incomingCards.get(0).ImageSrc);
+            ViewCards();
             }
         };
 
@@ -86,8 +92,8 @@ public class Deckbuilder extends Activity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+            .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+            .commit();
     }
 
     public void onSectionAttached(int number) {

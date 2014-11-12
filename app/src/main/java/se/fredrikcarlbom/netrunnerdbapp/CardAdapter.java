@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -25,7 +26,12 @@ public class CardAdapter extends ArrayAdapter<IncomingCard> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View cardView = layoutInflater.inflate(R.layout.card, parent, false);
         TextView textView = (TextView) cardView.findViewById(R.id.textView);
-        textView.setText(values.get(position).Title);
+        ImageView imageView = (ImageView) cardView.findViewById(R.id.imageView);
+        IncomingCard item = values.get(position);
+        textView.setText(item.Title);
+        if (item.Bitmap != null) {
+            imageView.setImageBitmap(item.Bitmap);
+        }
         return cardView;
     }
 
