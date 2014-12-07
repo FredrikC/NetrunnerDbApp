@@ -1,20 +1,15 @@
 package se.fredrikcarlbom.netrunnerdbapp;
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import org.json.JSONArray;
 
 import java.io.InputStream;
 
@@ -46,34 +41,34 @@ public class Communication {
         queue.add(request);
     }
 
-    public void FetchImage(Consumer<Bitmap> consumer, String relativeUrl) {
+    public void FetchImage(Consumer<String> consumer, String relativeUrl) {
+        Log.d("test", "Fetching image: "+relativeUrl);
         DownloadImageTask downloadImageTask = new DownloadImageTask(consumer);
         downloadImageTask.execute(hostname + relativeUrl);
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        Consumer<Bitmap> consumer;
+    private class DownloadImageTask extends AsyncTask<String, Void, String> {
+        Consumer<String> consumer;
 
-        public DownloadImageTask(Consumer<Bitmap> consumer) {
+        public DownloadImageTask(Consumer<String> consumer) {
             this.consumer = consumer;
         }
 
-        protected Bitmap doInBackground(String... urls) {
+        @Override
+        protected String doInBackground(String... urls) {
             String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
+            StringBuilder buffer = new StringBuilder();
+            byte[] data = new byte[16384];
             try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
+                InputStream incomingStream = new java.net.URL(urldisplay).openStream();
+                while ((incomingStream.read(data, 0, data.length)) != -1) {
+                    buffer.append(data);
+                }
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
             }
-            return mIcon11;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            consumer.onResponse(bitmap);
+            return buffer.toString();
         }
     }
 

@@ -19,6 +19,7 @@ import com.android.volley.Response;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,22 +27,18 @@ import java.util.List;
 public class Deckbuilder extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
-    List<IncomingCard> incomingCards;
-    Communication communication;
-    ObjectMapper mapper;
 
     public Deckbuilder() {
         super();
-        mapper = new ObjectMapper();
     }
 
-    private void ViewCards() {
+    public void ViewCards(List<IncomingCard> incomingCards) {
         if (incomingCards == null) {
             return;
         }
-        ListView listView = (ListView)findViewById(R.id.listView);
+        //ListView listView = (ListView)findViewById(R.id.listView);
         CardAdapter adapter = new CardAdapter(this.getApplicationContext(), incomingCards);
-        listView.setAdapter(adapter);
+        //listView.setAdapter(adapter);
     }
 
     /**
@@ -58,7 +55,6 @@ public class Deckbuilder extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deckbuilder);
-        communication = new Communication(this.getApplicationContext(), "http://netrunnerdb.com/", "api/");
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -66,25 +62,7 @@ public class Deckbuilder extends Activity
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-
-        Response.Listener<String> listener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-            try {
-                incomingCards = mapper.readValue(response, new TypeReference<ArrayList<IncomingCard>>() {});
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            communication.FetchImage(new Consumer<Bitmap>() {
-                public void onResponse(Bitmap bitmap) {
-                    incomingCards.get(0).Bitmap = bitmap;
-                }
-                }, incomingCards.get(0).ImageSrc);
-            ViewCards();
-            }
-        };
-
-        communication.FetchCards(listener);
+        ViewCards(new ArrayList<IncomingCard>());
     }
 
     @Override
